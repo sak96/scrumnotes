@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Notes</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/4.1.0/vuedraggable.umd.min.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <h1>📋 Scrum Notes</h1>
+
+    <nav>
+        <button @click="view = 'home'">🏠 Home</button>
+        <button @click="view = 'edit'">✏️ Edit/Create</button>
+    </nav>
+
+    <hr>
+
+    <div v-if="view === 'home'">
+        <h2>🏠 Dashboard</h2>
+        <div v-for="parent in titles" :key="parent.id" style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
+            <details>
+                <summary><strong>{{ parent.text }}</strong> ({{ getChildren(parent.id).length }} items)</summary>
+                
+                <h4>⏳ To Do</h4>
+                <ul>
+                    <li v-for="item in getIncomplete(parent.id)" :key="item.id">
+                        {{ item.text }}
+                    </li>
+                </ul>
+
+                <h4>✅ Completed</h4>
+                <ul>
+                    <li v-for="item in getComplete(parent.id)" :key="item.id">
+                        <s>{{ item.text }}</s>
+                    </li>
+                </ul>
+
+                <button @click="prepareCleanup(parent.id)">🧹 Cleanup Completed</button>
+            </details>
+        </div>
+
+        <div v-if="cleanupList.length > 0" style="background: #eee; padding: 10px; margin-top: 20px;">
+            <h3>⚠️ Confirm Deletion</h3>
+            <p>The following items (and potentially the title if empty) will be deleted:</p>
+            <ul>
+                <li v-for="item in cleanupList" :key="item.id">
+                    {{ item.parentId === 0 ? '📁 [TITLE]' : '📄' }} {{ item.text }}
+                </li>
+            </ul>
+            <button @click="executeCleanup">🔥 Confirm Delete All</button>
+            <button @click="cleanupList = []">❌ Cancel</button>
+        </div>
+    </div>
+
+    <div v-if="view === 'edit'">
+        <h2>✏️ Edit Tasks</h2>
+        
+        <label>Select or Create Title:</label>
+        <input list="title-suggestions" v-model="selectedTitleText" @change="handleTitleSelect" placeholder="Type a title...">
+        <datalist id="title-suggestions">
+            <option v-for="t in titles" :value="t.text"></option>
+        </datalist>
+        <button @click="createNewTitle">➕ Create Title</button>
+
+        <div v-if="currentParentId" style="margin-top: 20px;">
+            <h3>Editing: {{ activeParent?.text }}</h3>
+            
+            <div>
+                <input v-model="newChildText" placeholder="New child task..." @keyup.enter="addChild">
+                <button @click="addChild">➕ Add Task</button>
+            </div>
+
+            <hr>
+
+            <h4>Move Handle ☰ to Reorder</h4>
+            <draggable 
+                :list="orderedChildren" 
+                item-key="id" 
+                handle=".handle"
+                @change="onDragChange">
+                <template #item="{element}">
+                    <div style="padding: 5px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                        <span class="handle" style="cursor: move; margin-right: 10px;">☰</span>
+                        <input type="checkbox" v-model="element.completed" @change="updateItem(element)">
+                        <input type="text" v-model="element.text" @blur="updateItem(element)" style="flex-grow: 1; margin: 0 5px;">
+                        <button @click="deleteItem(element.id)">🗑️</button>
+                    </div>
+                </template>
+            </draggable>
+        </div>
+    </div>
+</div>
+
+<script>
+const { createApp, ref, onMounted, computed } = Vue;
+
+const app = createApp({
+    components: {
+        'draggable': window.vuedraggable
+    },
+    setup() {
+        const view = ref('home');
+        const items = ref([]);
+        const db = ref(null);
+        
+        // Form states
+        const selectedTitleText = ref('');
+        const currentParentId = ref(null);
+        const newChildText = ref('');
+        const cleanupList = ref([]);
+
+        // IndexedDB Initialization
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open("ScrumNotesDB", 1);
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains("items")) {
+                        database.createObjectStore("items", { keyPath: "id", autoIncrement: true });
+                    }
+                };
+                request.onsuccess = (e) => {
+                    db.value = e.target.result;
+                    fetchItems();
+                    resolve();
+                };
+            });
+        };
+
+        const fetchItems = () => {
+            const transaction = db.value.transaction(["items"], "readonly");
+            const store = transaction.objectStore("items");
+            const request = store.getAll();
+            request.onsuccess = () => {
+                items.value = request.result;
+            };
+        };
+
+        // CRUD Operations
+        const saveItem = (item) => {
+            const transaction = db.value.transaction(["items"], "readwrite");
+            const store = transaction.objectStore("items");
+            store.put(item);
+            transaction.oncomplete = () => fetchItems();
+        };
+
+        const updateItem = (item) => {
+            saveItem(JSON.parse(JSON.stringify(item)));
+        };
+
+        const deleteItem = (id) => {
+            const transaction = db.value.transaction(["items"], "readwrite");
+            const store = transaction.objectStore("items");
+            store.delete(id);
+            transaction.oncomplete = () => fetchItems();
+        };
+
+        // Computed
+        const titles = computed(() => items.value.filter(i => i.parentId === 0).sort((a, b) => a.index - b.index));
+        
+        const activeParent = computed(() => items.value.find(i => i.id === currentParentId.value));
+
+        const orderedChildren = computed(() => {
+            if (!currentParentId.value) return [];
+            return items.value
+                .filter(i => i.parentId === currentParentId.value)
+                .sort((a, b) => {
+                    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                    return a.index - b.index;
+                });
+        });
+
+        // Helper Methods
+        const getChildren = (pid) => items.value.filter(i => i.parentId === pid);
+        const getIncomplete = (pid) => getChildren(pid).filter(i => !i.completed).sort((a,b) => a.index - b.index);
+        const getComplete = (pid) => getChildren(pid).filter(i => i.completed).sort((a,b) => a.index - b.index);
+
+        // Logic
+        const createNewTitle = () => {
+            if (!selectedTitleText.value) return;
+            const newTitle = {
+                parentId: 0,
+                text: selectedTitleText.value,
+                completed: false,
+                index: titles.value.length + 1
+            };
+            saveItem(newTitle);
+        };
+
+        const handleTitleSelect = () => {
+            const found = titles.value.find(t => t.text === selectedTitleText.value);
+            if (found) currentParentId.value = found.id;
+        };
+
+        const addChild = () => {
+            if (!newChildText.value || !currentParentId.value) return;
+            const siblings = getChildren(currentParentId.value);
+            const newItem = {
+                parentId: currentParentId.value,
+                text: newChildText.value,
+                completed: false,
+                index: siblings.length + 1
+            };
+            saveItem(newItem);
+            newChildText.value = '';
+        };
+
+        const onDragChange = (event) => {
+            // Re-assign indices based on the new visual order
+            const updatedList = orderedChildren.value;
+            updatedList.forEach((item, idx) => {
+                item.index = idx;
+                updateItem(item);
+            });
+        };
+
+        const prepareCleanup = (parentId) => {
+            const children = getChildren(parentId);
+            const completedChildren = children.filter(c => c.completed);
+            
+            let toDelete = [...completedChildren];
+            
+            // If all children are completed, mark parent for deletion too
+            if (children.length > 0 && children.length === completedChildren.length) {
+                const parent = items.value.find(i => i.id === parentId);
+                toDelete.push(parent);
+            }
+
+            cleanupList.value = toDelete;
+        };
+
+        const executeCleanup = () => {
+            const transaction = db.value.transaction(["items"], "readwrite");
+            const store = transaction.objectStore("items");
+            cleanupList.value.forEach(item => store.delete(item.id));
+            transaction.oncomplete = () => {
+                cleanupList.value = [];
+                fetchItems();
+            };
+        };
+
+        onMounted(() => {
+            initDB();
+        });
+
+        return {
+            view, items, titles, selectedTitleText, currentParentId, activeParent, 
+            newChildText, orderedChildren, cleanupList,
+            getChildren, getIncomplete, getComplete,
+            createNewTitle, handleTitleSelect, addChild, updateItem, deleteItem,
+            onDragChange, prepareCleanup, executeCleanup
+        };
+    }
+}).mount('#app');
+</script>
+
+</body>
+</html>
