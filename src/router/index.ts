@@ -4,7 +4,7 @@ import EditView from '../views/EditView.vue';
 import DeleteView from '../views/DeleteView.vue';
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
