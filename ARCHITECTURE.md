@@ -46,23 +46,39 @@ App.vue
 │   │       ├── <details>/<summary>
 │   │       └── Children Preview
 │   └── Search/Add Section
-│       └── Search Input, Add Button
-└── EditView
+│       └── Search Input, Add Button, Delete Button (🗑️)
+├── EditView
+│   ├── Header
+│   │   ├── Home Button (🏠)
+│   │   ├── Title Input
+│   │   └── Delete Button (🗑️)
+│   ├── ChildrenList
+│   │   └── VueDraggable
+│   │       └── Child Item (v-for)
+│   │           ├── DraggableIcon (⠿)
+│   │           ├── Complete Button (◻️/✅)
+│   │           ├── Text Input
+│   │           └── Delete Button (🗑️)
+│   └── EmptyTodo
+│       ├── DraggableIcon (⠿)
+│       ├── Incomplete Icon (◻️)
+│       └── New Item Input
+└── DeleteView
     ├── Header
     │   ├── Home Button (🏠)
-    │   ├── Title Input
-    │   └── Delete Button (🗑️)
-    ├── ChildrenList
-    │   └── VueDraggable
-    │       └── Child Item (v-for)
-    │           ├── DraggableIcon (⠿)
-    │           ├── Complete Button (◻️/✅)
-    │           ├── Text Input
-    │           └── Delete Button (🗑️)
-    └── EmptyTodo
-        ├── DraggableIcon (⠿)
-        ├── Incomplete Icon (◻️)
-        └── New Item Input
+    │   └── Title: Delete Items
+    ├── Delete List
+    │   └── Delete Item (v-for)
+    │       ├── <details>/<summary>
+    │       │   ├── Checkbox
+    │       │   └── Title Text
+    │       └── Children Section
+    │           └── Child Item (v-for)
+    │               ├── Checkbox
+    │               ├── Completion Icon (◻️/✅)
+    │               └── Child Text
+    └── Sticky Footer
+        └── Delete Button (🗑️)
 ```
 
 ## Data Flow
@@ -98,6 +114,7 @@ User Action → Component → Store (Pinia) → Database (IndexedDB) → Store (
 - `addChild(parentId, text)`: Create new child item
 - `updateTodo(item)`: Update existing todo
 - `deleteTodoAndChildren(id)`: Delete todo and all descendants
+- `deleteTodosByIds(ids)`: Delete multiple items and their children
 - `toggleCompletion(id)`: Toggle completion status
 - `updateChildrenOrder(parentId, items)`: Reorder children items
 - `setFilter(searchText)`: Update filter options
@@ -149,12 +166,16 @@ interface TodoItem {
 |------|------|-----------|-------------|
 | `/` | home | HomeView | Main page with title list |
 | `/edit/:id` | edit | EditView | Edit page for specific title |
+| `/delete` | delete | DeleteView | Delete page for multiple items |
 
 ### Navigation Flow
 
 ```
 Home Page → Click Add → Create Title → Redirect to Edit Page
 Home Page → Click Edit → Navigate to Edit Page
+Home Page → Click Delete → Navigate to Delete Page
+Delete Page → Click Home → Navigate to Home Page
+Delete Page → Click Delete → Delete Selected & Navigate Home
 Edit Page → Click Home → Navigate to Home Page
 Edit Page → Click Delete → Delete & Navigate Home
 ```

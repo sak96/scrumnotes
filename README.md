@@ -9,6 +9,7 @@ A Vue 3 application for managing scrum notes with drag-and-drop functionality an
 - **Drag-and-Drop**: Reorder TODO items using vue-draggable-plus
 - **IndexedDB Storage**: All data persists locally using IndexedDB
 - **Filter/Search**: Filter titles by text search
+- **Delete Mode**: Select and delete multiple titles and items
 - **Responsive Design**: Clean, unstyled HTML components
 
 ## Tech Stack
@@ -107,6 +108,14 @@ interface TodoItem {
 2. **Filter**: Enter text to filter displayed titles
 3. **Edit Title**: Click the ✏️ icon to edit a title
 4. **View Items**: Click the title or expand (▼/▲) to see TODO items
+5. **Delete Mode**: Click 🗑️ to go to delete page
+
+### Delete Page
+1. **Select Items**: Check boxes for titles and children
+2. **Title Checkbox**: Enabled only when all children are completed (✅)
+3. **Child Checkboxes**: Toggle individual children
+4. **Delete Button**: Click 🗑️ to delete selected items
+5. **Navigate Home**: Click 🏠 to return to home page
 
 ### Edit Page
 1. **Edit Title**: Modify the title text directly
@@ -132,7 +141,7 @@ interface TodoItem {
 | ✅ | Completed TODO |
 | ▼ | Expand details |
 | ▲ | Collapse details |
-| 🗑️ | Delete |
+| 🗑️ | Delete (button) / Delete selected |
 | ✏️ | Edit |
 | 🏠 | Home |
 | ⠿ | Draggable handle |

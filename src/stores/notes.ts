@@ -82,6 +82,29 @@ export const useNotesStore = defineStore('notes', () => {
     );
   }
 
+  async function deleteTodosByIds(ids: number[]) {
+    const idsToDelete = new Set(ids);
+
+    const itemsToDelete = todos.value.filter(t => idsToDelete.has(t.id));
+    const allChildIds = new Set<number>();
+
+    for (const item of itemsToDelete) {
+      const children = todos.value.filter(t => t.parentId === item.id);
+      children.forEach(c => allChildIds.add(c.id));
+    }
+
+    const finalIdsToDelete = new Set([...idsToDelete, ...allChildIds]);
+
+    for (const id of idsToDelete) {
+      await database.deleteTodosByParentId(id);
+      await database.deleteTodo(id);
+    }
+
+    todos.value = todos.value.filter(
+      t => !finalIdsToDelete.has(t.id)
+    );
+  }
+
   async function toggleCompletion(id: number) {
     const item = todos.value.find(t => t.id === id);
     if (!item) return;
@@ -128,6 +151,7 @@ export const useNotesStore = defineStore('notes', () => {
     addChild,
     updateTodo,
     deleteTodoAndChildren,
+    deleteTodosByIds,
     toggleCompletion,
     updateChildrenOrder,
     setFilter,

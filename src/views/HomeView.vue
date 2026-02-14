@@ -4,14 +4,21 @@
       <input
         :value="searchText"
         @input="updateSearch"
-        placeholder="Filter titles..."
+        placeholder="🔍 Filter titles..."
         class="search-input"
       />
       <button
         class="add-button"
         @click="handleAdd"
       >
-        Add
+        ➕
+      </button>
+      <button
+        class="delete-button"
+        @click="router.push('/delete')"
+        aria-label="Delete"
+      >
+        🗑️
       </button>
     </div>
     <TitleCard
@@ -85,11 +92,19 @@ function handleEdit(id: number) {
 }
 .add-button {
   padding: 8px 16px;
-  background: #4CAF50;
+  background: Lime;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+.delete-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5em;
+  padding: 0 8px;
+  color: Crimson;
 }
 .no-titles {
   text-align: center;
