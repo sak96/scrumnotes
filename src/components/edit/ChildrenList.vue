@@ -3,7 +3,7 @@
     <draggable
       class="children-list"
       v-model="list"
-      handle=".drag-handle"
+      handle=".draggable-icon"
       @end="handleReorder"
     >
         <div
