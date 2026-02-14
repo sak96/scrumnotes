@@ -1,12 +1,27 @@
 # Scrum Notes
 
+![Version](https://img.shields.io/npm/v/scrum-notes)
+![License](https://img.shields.io/npm/l/scrum-notes)
+
 A Vue 3 application for managing scrum notes with drag-and-drop functionality and IndexedDB storage.
+
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Data Model](#data-model)
+- [Usage](#usage)
+- [Database](#database)
+- [Development](#development)
+- [Build](#build)
 
 ## Features
 
 - **Title Management**: Create, edit, and delete scrum titles
 - **TODO Items**: Add, reorder, and complete TODO items under each title
-- **Drag-and-Drop**: Reorder TODO items using vue-draggable-plus
+- **Drag-and-Drop**: Reorder TODO items using vue-draggable-next
 - **IndexedDB Storage**: All data persists locally using IndexedDB
 - **Filter/Search**: Filter titles by text search
 - **Delete Mode**: Select and delete multiple titles and items
@@ -19,7 +34,7 @@ A Vue 3 application for managing scrum notes with drag-and-drop functionality an
 - **Build Tool**: Vite
 - **State Management**: Pinia
 - **Database**: IndexedDB via `idb` library
-- **Drag & Drop**: vue-draggable-plus
+- **Drag & Drop**: vue-draggable-next
 - **Routing**: Vue Router
 - **Testing**: Vitest + Vue Test Utils
 
@@ -73,11 +88,14 @@ src/
 │       └── EmptyTodo.vue      # New TODO input placeholder
 ├── views/
 │   ├── HomeView.vue           # Main page with search and list
-│   └── EditView.vue           # Edit page for titles and items
+│   ├── EditView.vue           # Edit page for titles and items
+│   └── DeleteView.vue         # Delete page for multi-select deletion
 ├── stores/
-│   └── notes.ts               # Pinia store for state management
+│   ├── notes.ts               # Pinia store for state management
+│   └── notes.test.ts          # Store unit tests
 ├── services/
-│   └── database.ts            # IndexedDB operations
+│   ├── database.ts            # IndexedDB operations
+│   └── database.test.ts       # Database service tests
 ├── types/
 │   └── index.ts               # TypeScript type definitions
 ├── router/
@@ -97,7 +115,7 @@ interface TodoItem {
   completed: boolean;      // Completion status
   text: string;            // Item text
   createdAt: Date;         // Creation timestamp
-  completedAt?: Date;      // Completion timestamp (optional)
+  completedAt?: Date | null; // Completion timestamp (optional)
 }
 ```
 
@@ -126,25 +144,19 @@ interface TodoItem {
 6. **Delete Title**: Click 🗑️ to delete title and all children
 7. **Navigate Home**: Click 🏠 to return to home page
 
+### Delete Page
+1. **Select Items**: Check boxes for titles and their completed children
+2. **Title Checkbox**: Only enabled when all children are completed (✅)
+3. **Child Checkboxes**: Toggle individual completed children
+4. **Delete Button**: Click 🗑️ to delete selected items (shows count)
+5. **Navigate Home**: Click 🏠 to return to home page
+
 ## Database
 
 ### IndexedDB Configuration
 - **Database Name**: `scrum-notes-db`
 - **Store**: `todos`
 - **Indexes**: `parent-id`, `created-at`
-
-## Icons
-
-| Icon | Meaning |
-|------|---------|
-| ◻️ | Not completed TODO |
-| ✅ | Completed TODO |
-| ▼ | Expand details |
-| ▲ | Collapse details |
-| 🗑️ | Delete (button) / Delete selected |
-| ✏️ | Edit |
-| 🏠 | Home |
-| ⠿ | Draggable handle |
 
 ## Development
 
@@ -165,6 +177,19 @@ npm run test -- --coverage
 
 # Run specific test file
 npm run test -- notes.test.ts
+
+# Run tests with UI
+npm run test:ui
+```
+
+### Linting
+
+```bash
+# Run lint check
+npm run lint
+
+# Lint with auto-fix
+npm run lint -- --fix
 ```
 
 ## Build

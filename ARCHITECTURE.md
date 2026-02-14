@@ -1,5 +1,22 @@
 # Architecture Documentation
 
+## Table of Contents
+
+- [Overview](#overview)
+- [System Architecture](#system-architecture)
+- [Component Hierarchy](#component-hierarchy)
+- [Data Flow](#data-flow)
+- [State Management (Pinia)](#state-management-pinia)
+- [Database Layer (IndexedDB)](#database-layer-indexeddb)
+- [Routing](#routing)
+- [Component Details](#component-details)
+- [Views](#views)
+- [Key Features Implementation](#key-features-implementation)
+- [Error Handling](#error-handling)
+- [Performance Considerations](#performance-considerations)
+- [Security Considerations](#security-considerations)
+- [Testing Strategy](#testing-strategy)
+
 ## Overview
 
 Scrum Notes is a Vue 3 single-page application (SPA) that manages scrum notes using IndexedDB for local persistence. The application follows a component-based architecture with clear separation of concerns.
@@ -34,6 +51,13 @@ Scrum Notes is a Vue 3 single-page application (SPA) that manages scrum notes us
 │  │  └─────────────────────────────────────────────────┘   │ │
 │  └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
+                         │
+                         ▼
+              ┌───────────────────────┐
+              │   Vue Router v4       │
+              │   (Hash-Based)        │
+              │   - createWebHashHistory │
+              └───────────────────────┘
 ```
 
 ## Component Hierarchy
@@ -53,7 +77,7 @@ App.vue
 │   │   ├── Title Input
 │   │   └── Delete Button (🗑️)
 │   ├── ChildrenList
-│   │   └── VueDraggable
+│   │   └── VueDraggable (vue-draggable-next)
 │   │       └── Child Item (v-for)
 │   │           ├── DraggableIcon (⠿)
 │   │           ├── Complete Button (◻️/✅)
@@ -141,7 +165,7 @@ interface TodoItem {
   completed: boolean;      // Completion status
   text: string;            // Item text content
   createdAt: Date;         // Creation timestamp
-  completedAt?: Date;      // Completion timestamp (nullable)
+  completedAt?: Date | null; // Completion timestamp (nullable)
 }
 ```
 
@@ -167,6 +191,13 @@ interface TodoItem {
 | `/` | home | HomeView | Main page with title list |
 | `/edit/:id` | edit | EditView | Edit page for specific title |
 | `/delete` | delete | DeleteView | Delete page for multiple items |
+
+### Routing Implementation
+
+- **History Mode**: Hash-based routing using `createWebHashHistory` from Vue Router
+- **URL Format**: `/#/`, `/#/edit/1`, `/#/delete`
+- **No Server Configuration Required**: Hash routing works without special server-side configuration
+- **Import Meta Base URL**: Uses `import.meta.env.BASE_URL` for base path configuration
 
 ### Navigation Flow
 
@@ -227,6 +258,10 @@ Edit Page → Click Delete → Delete & Navigate Home
 - **Events**: update:text, add
 - **Responsibility**: Input for new todo items
 
+### Delete Components (`/src/components/delete/`)
+
+DeleteView uses native HTML elements without dedicated sub-components. The view implements all delete functionality inline.
+
 ## Views
 
 ### HomeView (`/src/views/HomeView.vue`)
@@ -254,11 +289,41 @@ Edit Page → Click Delete → Delete & Navigate Home
 - title: Computed from store based on route ID
 - sortedChildren: Computed sorted children list
 
+### DeleteView (`/src/views/DeleteView.vue`)
+
+**Responsibilities**:
+- Multi-select interface for deleting titles and children
+- Display all titles with their children in collapsible sections
+- Manage checkbox selection state for titles and children
+- Validate title deletion eligibility (all children must be completed)
+- Batch delete selected items with confirmation
+- Navigate back to home page
+
+**State**:
+- `checkedTitleIds`: Set of selected title IDs
+- `checkedChildIds`: Set of selected child IDs
+- `titles`: Computed list of all title items from store
+
+**Computed Properties**:
+- `checkedIds`: Array combining selected title and child IDs for deletion
+
+**Key Logic**:
+- **Title Checkbox Enable/Disable**: Title checkbox is disabled unless all children are completed AND all completed children are selected
+- **Auto-select on Mount**: Automatically selects all completed children on view load
+- **Title Selection Sync**: Selecting a title automatically selects/deselects all its children
+- **Child Selection Validation**: Unchecking a child unchecks its parent title if all completed children were selected
+
+**Behavior**:
+- Shows "No items to delete" when no items exist
+- Delete button shows count of selected items
+- Delete button disabled when no items selected
+- Red delete button in sticky footer for prominent action
+
 ## Key Features Implementation
 
 ### Drag-and-Drop
 
-Uses `vue-draggable-plus` for drag-and-drop functionality:
+Uses `vue-draggable-next` for drag-and-drop functionality:
 
 ```vue
 <VueDraggable
@@ -333,16 +398,24 @@ function handleBlur(event: FocusEvent) {
 ## Testing Strategy
 
 ### Unit Tests
-- Pinia store actions and getters
-- Database service functions
+- Pinia store actions and getters (`src/stores/notes.test.ts`)
+- Database service functions (`src/services/database.test.ts`)
 - Utility functions
 
 ### Component Tests
 - HomeView: Search, add, navigation
-- EditView: Title edit, child management
+- EditView: Title edit, child management (`src/components/edit/ChildrenList.test.ts`)
+- DeleteView: Multi-select delete logic (`src/views/DeleteView.test.ts`)
 - Common components: Props and events
 
 ### Integration Tests
 - Database CRUD operations
 - Store-database synchronization
 - Router-component integration
+
+### Test Configuration
+- **Framework**: Vitest
+- **Test Utils**: Vue Test Utils
+- **Environment**: Happy DOM (browser simulation)
+- **Coverage**: Enabled via `--coverage` flag
+- **UI Mode**: Available via `npm run test:ui`
