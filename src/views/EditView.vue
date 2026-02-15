@@ -134,7 +134,7 @@ async function handleDelete() {
   padding: 8px 12px;
   font-size: 1.2em;
   font-weight: bold;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 .delete-button {
@@ -146,6 +146,6 @@ async function handleDelete() {
 .not-found {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--text-secondary);
 }
 </style>

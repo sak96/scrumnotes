@@ -87,12 +87,12 @@ function handleEdit(id: number) {
 .search-input {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 .add-button {
   padding: 8px 16px;
-  background: Lime;
+  background: var(--accent-add);
   color: white;
   border: none;
   border-radius: 4px;
@@ -104,11 +104,11 @@ function handleEdit(id: number) {
   cursor: pointer;
   font-size: 1.5em;
   padding: 0 8px;
-  color: Crimson;
+  color: var(--accent-delete);
 }
 .no-titles {
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
   padding: 20px;
 }
 </style>

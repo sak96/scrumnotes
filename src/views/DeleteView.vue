@@ -193,9 +193,10 @@ h1 {
   margin: 0;
 }
 .delete-item {
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   margin: 8px 0;
   border-radius: 4px;
+  background: var(--bg-secondary);
 }
 .delete-item > details {
   padding: 8px;
@@ -226,7 +227,7 @@ h1 {
 }
 .no-items {
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
   padding: 40px;
 }
 .sticky-footer {
@@ -234,14 +235,14 @@ h1 {
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
+  background: var(--bg-sticky-footer);
   padding: 16px;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--border-color);
   text-align: center;
 }
 .delete-button {
   padding: 12px 24px;
-  background: #f44336;
+  background: var(--accent-delete);
   color: white;
   border: none;
   border-radius: 4px;
@@ -249,7 +250,7 @@ h1 {
   font-size: 1.1em;
 }
 .delete-button:disabled {
-  background: #ccc;
+  background: var(--border-color);
   cursor: not-allowed;
 }
 </style>

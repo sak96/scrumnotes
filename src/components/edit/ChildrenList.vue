@@ -69,14 +69,15 @@ function handleTextChange(element: TodoItem) {
   align-items: center;
   gap: 8px;
   padding: 8px;
-  border: 1px solid #eee;
+  border: 1px solid var(--border-light);
   margin: 4px 0;
   border-radius: 4px;
+  background: var(--bg-secondary);
 }
 
 .child-text {
   flex: 1;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   padding: 4px 8px;
 }
 </style>

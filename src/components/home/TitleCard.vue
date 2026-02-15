@@ -51,9 +51,10 @@ const previewChildren = computed(() =>
 
 <style>
 .title-card {
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   margin: 8px 0;
   border-radius: 4px;
+  background: var(--bg-secondary);
 }
 .title-summary {
   display: flex;
@@ -81,7 +82,7 @@ const previewChildren = computed(() =>
 }
 .children-preview {
   padding: 8px 16px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-light);
 }
 .child-preview-item {
   display: flex;
@@ -90,12 +91,12 @@ const previewChildren = computed(() =>
   padding: 4px 0;
 }
 .more-children {
-  color: #666;
+  color: var(--text-secondary);
   font-style: italic;
   padding: 4px 0;
 }
 .no-children {
-  color: #999;
+  color: var(--text-secondary);
   font-style: italic;
   padding: 4px 0;
 }

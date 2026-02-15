@@ -55,7 +55,7 @@ function handleBlur(event: FocusEvent) {
   padding: 4px;
 }
 .todo-text input {
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   padding: 2px 4px;
 }
 </style>
