@@ -49,10 +49,11 @@ export const useNotesStore = defineStore('notes', () => {
 
   async function addChild(parentId: number, text: string): Promise<TodoChild> {
     const id = await database.getNextId();
+    const children = getChildrenByParentId(parentId);
     const newItem: TodoItem = {
       id,
       parentId,
-      index: 0,
+      index: children.length,
       completed: false,
       text,
       createdAt: new Date(),

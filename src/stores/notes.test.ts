@@ -80,6 +80,92 @@ describe('useNotesStore', () => {
       expect(newChild.parentId).toBe(parentId);
       expect(newChild.completed).toBe(false);
     });
+
+    it('should add child at end of existing children with sequential index', async () => {
+      const parentId = 1;
+      const mockTodos: TodoItem[] = [
+        {
+          id: 1,
+          parentId: 0,
+          index: 0,
+          completed: false,
+          text: 'Parent',
+          createdAt: new Date(),
+          completedAt: null,
+        },
+        {
+          id: 2,
+          parentId: 1,
+          index: 0,
+          completed: false,
+          text: 'Child 1',
+          createdAt: new Date(),
+          completedAt: null,
+        },
+        {
+          id: 3,
+          parentId: 1,
+          index: 1,
+          completed: false,
+          text: 'Child 2',
+          createdAt: new Date(),
+          completedAt: null,
+        },
+        {
+          id: 4,
+          parentId: 1,
+          index: 2,
+          completed: false,
+          text: 'Child 3',
+          createdAt: new Date(),
+          completedAt: null,
+        },
+      ];
+      (database.getNextId as vi.Mock).mockResolvedValue(5);
+      (database.saveTodo as vi.Mock).mockResolvedValue(undefined);
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+
+      const store = useNotesStore();
+      await store.loadTodos();
+
+      const newChild = await store.addChild(parentId, 'Child 4');
+
+      expect(newChild.index).toBe(3);
+      expect(database.saveTodo).toHaveBeenCalledWith(
+        expect.objectContaining({ index: 3, text: 'Child 4' })
+      );
+    });
+  });
+
+  describe('updateChildrenOrder', () => {
+    it('should reorder children with sequential indices', async () => {
+      const parentId = 1;
+      const mockTodos: TodoItem[] = [
+        { id: 1, parentId: 0, index: 0, completed: false, text: 'Parent', createdAt: new Date(), completedAt: null },
+        { id: 2, parentId: 1, index: 0, completed: false, text: 'Child A', createdAt: new Date(), completedAt: null },
+        { id: 3, parentId: 1, index: 2, completed: false, text: 'Child B', createdAt: new Date(), completedAt: null },
+        { id: 4, parentId: 1, index: 5, completed: false, text: 'Child C', createdAt: new Date(), completedAt: null },
+      ];
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+      (database.updateTodosOrder as vi.Mock).mockResolvedValue(undefined);
+
+      const store = useNotesStore();
+      await store.loadTodos();
+
+      const items = [
+        { id: 4, parentId: 1, index: 5, completed: false, text: 'Child C', createdAt: new Date(), completedAt: null },
+        { id: 2, parentId: 1, index: 0, completed: false, text: 'Child A', createdAt: new Date(), completedAt: null },
+        { id: 3, parentId: 1, index: 2, completed: false, text: 'Child B', createdAt: new Date(), completedAt: null },
+      ];
+
+      await store.updateChildrenOrder(parentId, items);
+
+      expect(database.updateTodosOrder).toHaveBeenCalledWith([
+        expect.objectContaining({ id: 4, index: 0 }),
+        expect.objectContaining({ id: 2, index: 1 }),
+        expect.objectContaining({ id: 3, index: 2 }),
+      ]);
+    });
   });
 
   describe('toggleCompletion', () => {
