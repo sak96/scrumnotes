@@ -20,6 +20,7 @@
             v-model="element.text"
             @blur="handleTextChange(element)"
             class="child-text"
+            spellcheck="true"
           />
         </div>
     </draggable>

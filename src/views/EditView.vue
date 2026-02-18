@@ -12,6 +12,7 @@
         :value="title.text"
         @input="updateTitle"
         class="title-input"
+        spellcheck="true"
       />
       <button
         class="delete-button"

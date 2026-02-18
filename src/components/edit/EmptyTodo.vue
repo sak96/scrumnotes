@@ -9,6 +9,7 @@
       @blur="handleBlur"
       placeholder="Add a new item..."
       class="empty-input"
+      spellcheck="true"
     />
   </div>
 </template>

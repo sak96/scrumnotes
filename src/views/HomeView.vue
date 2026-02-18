@@ -6,6 +6,7 @@
         @input="updateSearch"
         placeholder="🔍 Filter titles..."
         class="search-input"
+        spellcheck="true"
       />
       <button
         class="add-button"

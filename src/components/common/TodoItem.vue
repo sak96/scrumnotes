@@ -11,6 +11,7 @@
         @input="emit('update:text', ($event.target as HTMLInputElement).value)"
         @blur="handleBlur"
         @keyup.enter="($event.target as HTMLInputElement).blur()"
+        spellcheck="true"
       />
     </span>
     <span v-else class="todo-text">{{ text }}</span>
