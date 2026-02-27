@@ -837,5 +837,103 @@ describe('DeleteView', () => {
       const deleteButton = wrapper.find('.delete-button');
       expect(deleteButton.text()).toContain('Delete (4)');
     });
+
+    it('should set showDeleteConfirm to true when delete button is clicked', async () => {
+      const mockTodos = createMockTodos();
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+      await store.loadTodos();
+
+      const wrapper = mount(DeleteView, {
+        global: {
+          plugins: [router],
+          stubs: { RouterLink: true },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.showDeleteConfirm).toBe(false);
+
+      const deleteButton = wrapper.find('.delete-button');
+      await deleteButton.trigger('click');
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.vm.showDeleteConfirm).toBe(true);
+    });
+
+    it('should show confirmation dialog when delete button is clicked', async () => {
+      const mockTodos = createMockTodos();
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+      await store.loadTodos();
+
+      const wrapper = mount(DeleteView, {
+        global: {
+          plugins: [router],
+          stubs: { RouterLink: true },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      const deleteButton = wrapper.find('.delete-button');
+      await deleteButton.trigger('click');
+      await wrapper.vm.$nextTick();
+
+      const dialog = wrapper.find('dialog');
+      expect(dialog.exists()).toBe(true);
+    });
+
+    it('should delete items when confirmed in dialog', async () => {
+      const mockTodos = createMockTodos();
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+      await store.loadTodos();
+
+      (database.deleteTodo as vi.Mock).mockResolvedValue(undefined);
+      (database.deleteTodosByParentId as vi.Mock).mockResolvedValue(undefined);
+
+      const wrapper = mount(DeleteView, {
+        global: {
+          plugins: [router],
+          stubs: { RouterLink: true },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      const deleteButton = wrapper.find('.delete-button');
+      await deleteButton.trigger('click');
+      await wrapper.vm.$nextTick();
+
+      const confirmButton = wrapper.find('.confirm-button');
+      await confirmButton.trigger('click');
+      await wrapper.vm.$nextTick();
+
+      expect(database.deleteTodosByParentId).toHaveBeenCalled();
+    });
+
+    it('should not delete items when cancelled in dialog', async () => {
+      const mockTodos = createMockTodos();
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+      await store.loadTodos();
+
+      const wrapper = mount(DeleteView, {
+        global: {
+          plugins: [router],
+          stubs: { RouterLink: true },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      const deleteButton = wrapper.find('.delete-button');
+      await deleteButton.trigger('click');
+      await wrapper.vm.$nextTick();
+
+      const cancelButton = wrapper.find('.cancel-button');
+      await cancelButton.trigger('click');
+      await wrapper.vm.$nextTick();
+
+      expect(database.deleteTodosByParentId).not.toHaveBeenCalled();
+    });
   });
 });

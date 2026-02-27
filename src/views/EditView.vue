@@ -16,7 +16,7 @@
       />
       <button
         class="delete-button"
-        @click="handleDelete"
+        @click="showDeleteConfirm = true"
         aria-label="Delete"
       >
         🗑️
@@ -33,6 +33,16 @@
       @update:text="newItemText = $event"
       @add="handleAddChild"
     />
+
+    <ConfirmDialog
+      id="delete-confirm"
+      v-model="showDeleteConfirm"
+      title="Delete Title"
+      message="Are you sure you want to delete this title and all its children? This action cannot be undone."
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      @confirm="handleDelete"
+    />
   </div>
   <div v-else class="not-found">
     Title not found
@@ -45,6 +55,7 @@ import { useRouter } from 'vue-router';
 import { useNotesStore } from '../stores/notes';
 import ChildrenList from '../components/edit/ChildrenList.vue';
 import EmptyTodo from '../components/edit/EmptyTodo.vue';
+import ConfirmDialog from '../components/common/ConfirmDialog.vue';
 
 const props = defineProps<{
   id: string;
@@ -53,6 +64,7 @@ const props = defineProps<{
 const router = useRouter();
 const store = useNotesStore();
 
+const showDeleteConfirm = ref(false);
 const newItemText = ref('');
 
 const title = computed(() =>

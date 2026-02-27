@@ -55,12 +55,22 @@
     <div class="sticky-footer">
       <button
         class="delete-button"
-        @click="handleDelete"
+        @click="showDeleteConfirm = true"
         :disabled="checkedIds.length === 0"
       >
         🗑️ Delete ({{ checkedIds.length }})
       </button>
     </div>
+
+    <ConfirmDialog
+      id="delete-confirm"
+      v-model="showDeleteConfirm"
+      title="Delete Items"
+      message="Are you sure you want to delete the selected items? This action cannot be undone."
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      @confirm="handleDelete"
+    />
   </div>
 </template>
 
@@ -68,11 +78,13 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useNotesStore } from '../stores/notes';
+import ConfirmDialog from '../components/common/ConfirmDialog.vue';
 import type { TodoTitle, TodoChild, TodoItem } from '../types';
 
 const router = useRouter();
 const store = useNotesStore();
 
+const showDeleteConfirm = ref(false);
 const checkedTitleIds = ref<Set<number>>(new Set());
 const checkedChildIds = ref<Set<number>>(new Set());
 
