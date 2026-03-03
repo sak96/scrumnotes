@@ -319,60 +319,6 @@ describe('DeleteView', () => {
       expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
     });
 
-    it('should be disabled when all children completed but not all selected', async () => {
-      const mockTodos: TodoItem[] = [
-        {
-          id: 1,
-          parentId: 0,
-          index: 0,
-          completed: true,
-          text: 'Title',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 2,
-          parentId: 1,
-          index: 0,
-          completed: true,
-          text: 'Child 1 - Completed',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 3,
-          parentId: 1,
-          index: 1,
-          completed: true,
-          text: 'Child 2 - Completed',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-      ];
-      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
-      await store.loadTodos();
-
-      const wrapper = mount(DeleteView, {
-        global: {
-          plugins: [router],
-          stubs: { RouterLink: true },
-        },
-      });
-
-      await wrapper.vm.$nextTick();
-
-      const summaryElements = wrapper.findAll('.delete-item > details > summary');
-      const titleCheckbox = summaryElements[0].find('input[type="checkbox"]');
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(true);
-
-      const childCheckboxes = wrapper.findAll('.child-item input[type="checkbox"]');
-      await childCheckboxes[1].setValue(false);
-      await wrapper.vm.$nextTick();
-
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
-      expect(titleCheckbox.attributes('disabled')).toBeDefined();
-    });
-
     it('should be enabled when all children completed and all selected', async () => {
       const mockTodos: TodoItem[] = [
         {
@@ -451,6 +397,63 @@ describe('DeleteView', () => {
       expect(titleCheckbox.attributes('disabled')).toBeUndefined();
     });
 
+    it('should keep children selected when title is unchecked', async () => {
+      const mockTodos: TodoItem[] = [
+        {
+          id: 1,
+          parentId: 0,
+          index: 0,
+          completed: true,
+          text: 'Title',
+          createdAt: new Date(),
+          completedAt: new Date(),
+        },
+        {
+          id: 2,
+          parentId: 1,
+          index: 0,
+          completed: true,
+          text: 'Child 1',
+          createdAt: new Date(),
+          completedAt: new Date(),
+        },
+        {
+          id: 3,
+          parentId: 1,
+          index: 1,
+          completed: true,
+          text: 'Child 2',
+          createdAt: new Date(),
+          completedAt: new Date(),
+        },
+      ];
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+      await store.loadTodos();
+
+      const wrapper = mount(DeleteView, {
+        global: {
+          plugins: [router],
+          stubs: { RouterLink: true },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      const titleCheckbox = wrapper.find('.delete-item > details > summary > .delete-checkbox');
+      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(true);
+
+      const childCheckboxes = wrapper.findAll('.child-item input[type="checkbox"]');
+      expect((childCheckboxes[0].element as HTMLInputElement).checked).toBe(true);
+      expect((childCheckboxes[1].element as HTMLInputElement).checked).toBe(true);
+
+      await titleCheckbox.trigger('click');
+      await wrapper.vm.$nextTick();
+
+      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
+      expect((childCheckboxes[0].element as HTMLInputElement).checked).toBe(true);
+      expect((childCheckboxes[1].element as HTMLInputElement).checked).toBe(true);
+    });
+
     it('should toggle children selection when title is toggled', async () => {
       const mockTodos: TodoItem[] = [
         {
@@ -501,319 +504,6 @@ describe('DeleteView', () => {
       expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
     });
 
-    it('should enable title when child is toggled back on', async () => {
-      const mockTodos: TodoItem[] = [
-        {
-          id: 1,
-          parentId: 0,
-          index: 0,
-          completed: true,
-          text: 'Title',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 2,
-          parentId: 1,
-          index: 0,
-          completed: true,
-          text: 'Child 1',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 3,
-          parentId: 1,
-          index: 1,
-          completed: true,
-          text: 'Child 2',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-      ];
-      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
-      await store.loadTodos();
-
-      const wrapper = mount(DeleteView, {
-        global: {
-          plugins: [router],
-          stubs: { RouterLink: true },
-        },
-      });
-
-      await wrapper.vm.$nextTick();
-
-      const summaryElements = wrapper.findAll('.delete-item > details > summary');
-      const titleCheckbox = summaryElements[0].find('input[type="checkbox"]');
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(true);
-
-      const childCheckboxes = wrapper.findAll('.child-item input[type="checkbox"]');
-      await childCheckboxes[1].setValue(false);
-      await wrapper.vm.$nextTick();
-
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
-      expect(titleCheckbox.attributes('disabled')).toBeDefined();
-
-      await childCheckboxes[1].setValue(true);
-      await wrapper.vm.$nextTick();
-
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(true);
-      expect(titleCheckbox.attributes('disabled')).toBeUndefined();
-    });
-
-    it('should disable title when multiple children are deselected', async () => {
-      const mockTodos: TodoItem[] = [
-        {
-          id: 1,
-          parentId: 0,
-          index: 0,
-          completed: true,
-          text: 'Title',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 2,
-          parentId: 1,
-          index: 0,
-          completed: true,
-          text: 'Child 1',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 3,
-          parentId: 1,
-          index: 1,
-          completed: true,
-          text: 'Child 2',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 4,
-          parentId: 1,
-          index: 2,
-          completed: true,
-          text: 'Child 3',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-      ];
-      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
-      await store.loadTodos();
-
-      const wrapper = mount(DeleteView, {
-        global: {
-          plugins: [router],
-          stubs: { RouterLink: true },
-        },
-      });
-
-      await wrapper.vm.$nextTick();
-
-      const summaryElements = wrapper.findAll('.delete-item > details > summary');
-      const titleCheckbox = summaryElements[0].find('input[type="checkbox"]');
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(true);
-
-      const childCheckboxes = wrapper.findAll('.child-item input[type="checkbox"]');
-      await childCheckboxes[0].setValue(false);
-      await childCheckboxes[1].setValue(false);
-      await wrapper.vm.$nextTick();
-
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
-      expect(titleCheckbox.attributes('disabled')).toBeDefined();
-    });
-
-    it('should enable title when all children are selected manually', async () => {
-      const mockTodos: TodoItem[] = [
-        {
-          id: 1,
-          parentId: 0,
-          index: 0,
-          completed: true,
-          text: 'Title',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 2,
-          parentId: 1,
-          index: 0,
-          completed: true,
-          text: 'Child 1',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 3,
-          parentId: 1,
-          index: 1,
-          completed: true,
-          text: 'Child 2',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-      ];
-      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
-      await store.loadTodos();
-
-      const wrapper = mount(DeleteView, {
-        global: {
-          plugins: [router],
-          stubs: { RouterLink: true },
-        },
-      });
-
-      await wrapper.vm.$nextTick();
-
-      const summaryElements = wrapper.findAll('.delete-item > details > summary');
-      const titleCheckbox = summaryElements[0].find('input[type="checkbox"]');
-
-      const childCheckboxes = wrapper.findAll('.child-item input[type="checkbox"]');
-      await childCheckboxes[1].setValue(false);
-      await wrapper.vm.$nextTick();
-
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
-      expect(titleCheckbox.attributes('disabled')).toBeDefined();
-
-      await childCheckboxes[1].setValue(true);
-      await wrapper.vm.$nextTick();
-
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(true);
-      expect(titleCheckbox.attributes('disabled')).toBeUndefined();
-    });
-
-    it('should disable title with single child when child is deselected', async () => {
-      const mockTodos: TodoItem[] = [
-        {
-          id: 1,
-          parentId: 0,
-          index: 0,
-          completed: true,
-          text: 'Title',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 2,
-          parentId: 1,
-          index: 0,
-          completed: true,
-          text: 'Only Child',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-      ];
-      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
-      await store.loadTodos();
-
-      const wrapper = mount(DeleteView, {
-        global: {
-          plugins: [router],
-          stubs: { RouterLink: true },
-        },
-      });
-
-      await wrapper.vm.$nextTick();
-
-      const summaryElements = wrapper.findAll('.delete-item > details > summary');
-      const titleCheckbox = summaryElements[0].find('input[type="checkbox"]');
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(true);
-
-      const childCheckboxes = wrapper.findAll('.child-item input[type="checkbox"]');
-      await childCheckboxes[0].setValue(false);
-      await wrapper.vm.$nextTick();
-
-      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
-      expect(titleCheckbox.attributes('disabled')).toBeDefined();
-    });
-
-    it('should only affect the correct title when deselecting children', async () => {
-      const mockTodos: TodoItem[] = [
-        {
-          id: 1,
-          parentId: 0,
-          index: 0,
-          completed: true,
-          text: 'Title 1',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 2,
-          parentId: 1,
-          index: 0,
-          completed: true,
-          text: 'Child 1-1',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 3,
-          parentId: 1,
-          index: 1,
-          completed: true,
-          text: 'Child 1-2',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 4,
-          parentId: 0,
-          index: 1,
-          completed: true,
-          text: 'Title 2',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 5,
-          parentId: 4,
-          index: 0,
-          completed: true,
-          text: 'Child 2-1',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-        {
-          id: 6,
-          parentId: 4,
-          index: 1,
-          completed: true,
-          text: 'Child 2-2',
-          createdAt: new Date(),
-          completedAt: new Date(),
-        },
-      ];
-      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
-      await store.loadTodos();
-
-      const wrapper = mount(DeleteView, {
-        global: {
-          plugins: [router],
-          stubs: { RouterLink: true },
-        },
-      });
-
-      await wrapper.vm.$nextTick();
-
-      const summaryElements = wrapper.findAll('.delete-item > details > summary');
-      const title1Checkbox = summaryElements[0].find('input[type="checkbox"]');
-      const title2Checkbox = summaryElements[1].find('input[type="checkbox"]');
-      expect((title1Checkbox.element as HTMLInputElement).checked).toBe(true);
-      expect((title2Checkbox.element as HTMLInputElement).checked).toBe(true);
-
-      const childItems = wrapper.findAll('.child-item');
-      const child1Checkbox = childItems[1].find('input[type="checkbox"]');
-      await child1Checkbox.setValue(false);
-      await wrapper.vm.$nextTick();
-
-      expect((title1Checkbox.element as HTMLInputElement).checked).toBe(false);
-      expect(title1Checkbox.attributes('disabled')).toBeDefined();
-      expect((title2Checkbox.element as HTMLInputElement).checked).toBe(true);
-      expect(title2Checkbox.attributes('disabled')).toBeUndefined();
-    });
   });
 
   describe('delete button', () => {

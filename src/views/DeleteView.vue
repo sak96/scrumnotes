@@ -122,9 +122,7 @@ function isTitleChecked(titleId: number): boolean {
 function isTitleDisabled(titleId: number): boolean {
   const children = getChildrenByParentId(titleId);
   if (children.length === 0) return false;
-  if (!isAllChildrenCompleted(titleId)) return true;
-  const completedChildren = getCompletedChildrenByParentId(titleId);
-  return !completedChildren.every(child => checkedChildIds.value.has(child.id));
+  return !isAllChildrenCompleted(titleId);
 }
 
 function isChildChecked(childId: number): boolean {
@@ -134,8 +132,6 @@ function isChildChecked(childId: number): boolean {
 function toggleTitle(titleId: number) {
   if (isTitleChecked(titleId)) {
     checkedTitleIds.value.delete(titleId);
-    const children = getChildrenByParentId(titleId);
-    children.forEach(child => checkedChildIds.value.delete(child.id));
   } else {
     checkedTitleIds.value.add(titleId);
     const children = getChildrenByParentId(titleId);

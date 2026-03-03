@@ -313,7 +313,7 @@ DeleteView uses native HTML elements without dedicated sub-components. The view 
 **Key Logic**:
 - **Title Checkbox Enable/Disable**: Title checkbox is disabled unless all children are completed AND all completed children are selected
 - **Auto-select on Mount**: Automatically selects all completed children on view load
-- **Title Selection Sync**: Selecting a title automatically selects/deselects all its children
+- **Title Selection Sync**: Checking a title selects all its children; unchecking only deselects the title, children remain in their previous state
 - **Child Selection Validation**: Unchecking a child unchecks its parent title if all completed children were selected
 
 **Behavior**:
