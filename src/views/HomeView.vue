@@ -22,13 +22,19 @@
         🗑️
       </button>
     </div>
-    <TitleCard
-      v-for="title in filteredTitles"
-      :key="title.id"
-      :title="title"
-      :children="getChildrenByParentId(title.id)"
-      @edit="handleEdit"
-    />
+    <draggable
+      v-model="titlesList"
+      handle=".draggable-icon"
+      @end="handleReorder"
+    >
+      <TitleCard
+        v-for="title in titlesList"
+        :key="title.id"
+        :title="title"
+        :children="getChildrenByParentId(title.id)"
+        @edit="handleEdit"
+      />
+    </draggable>
     <div v-if="filteredTitles.length === 0" class="no-titles">
       No titles found
     </div>
@@ -36,8 +42,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import {VueDraggableNext as draggable} from 'vue-draggable-next';
 import { useNotesStore } from '../stores/notes';
 import TitleCard from '../components/home/TitleCard.vue';
 import type { TodoTitle, TodoChild } from '../types';
@@ -46,11 +53,16 @@ const router = useRouter();
 const store = useNotesStore();
 
 const searchText = ref('');
+const titlesList = ref<TodoTitle[]>([]);
 
 onMounted(() => {
   store.clearFilter();
   searchText.value = '';
 });
+
+watch(() => store.filteredTitles, (newTitles) => {
+  titlesList.value = [...newTitles] as TodoTitle[];
+}, { immediate: true, deep: true });
 
 const filteredTitles = computed(() => store.filteredTitles as TodoTitle[]);
 
@@ -71,6 +83,10 @@ async function handleAdd() {
 
 function handleEdit(id: number) {
   router.push(`/edit/${id}`);
+}
+
+async function handleReorder() {
+  await store.updateTitlesOrder(titlesList.value);
 }
 </script>
 

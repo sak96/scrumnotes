@@ -133,6 +133,19 @@ export const useNotesStore = defineStore('notes', () => {
     });
   }
 
+  async function updateTitlesOrder(items: TodoItem[]) {
+    const updatedItems = items.map((item, index) => ({
+      ...item,
+      index,
+    }));
+    await database.updateTodosOrder(updatedItems);
+
+    todos.value = todos.value.map(t => {
+      const updated = updatedItems.find(u => u.id === t.id);
+      return updated || t;
+    });
+  }
+
   function setFilter(searchText: string) {
     filterOptions.value.searchText = searchText;
   }
@@ -155,6 +168,7 @@ export const useNotesStore = defineStore('notes', () => {
     deleteTodosByIds,
     toggleCompletion,
     updateChildrenOrder,
+    updateTitlesOrder,
     setFilter,
     clearFilter,
   };

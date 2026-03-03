@@ -2,6 +2,7 @@
   <div class="title-card">
     <details :open="isOpen">
       <summary class="title-summary">
+        <DraggableIcon />
         <span class="expand-icon">{{ isOpen ? '▲' : '▼' }}</span>
         <span class="title-text">{{ title.text }}</span>
         <button
@@ -31,6 +32,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import DraggableIcon from '../common/DraggableIcon.vue';
 import type { TodoTitle, TodoChild } from '../../types';
 
 const props = defineProps<{
