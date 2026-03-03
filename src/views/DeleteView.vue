@@ -227,6 +227,10 @@ h1 {
   width: 20px;
   height: 20px;
 }
+.delete-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .children-section {
   margin-left: 32px;
   padding: 8px 0;
