@@ -3,7 +3,7 @@
     <details :open="isOpen">
       <summary class="title-summary">
         <DraggableIcon />
-        <span class="expand-icon">{{ isOpen ? '▲' : '▼' }}</span>
+        <span class="expand-icon">▶</span>
         <span class="title-text">{{ title.text }}</span>
         <button
           class="edit-button"
@@ -71,6 +71,10 @@ const previewChildren = computed(() =>
 }
 .expand-icon {
   font-size: 0.8em;
+  transition: transform 0.2s ease;
+}
+details[open] .expand-icon {
+  transform: rotate(90deg);
 }
 .title-text {
   flex: 1;
