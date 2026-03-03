@@ -168,6 +168,35 @@ describe('useNotesStore', () => {
     });
   });
 
+  describe('updateTitlesOrder', () => {
+    it('should reorder titles with sequential indices', async () => {
+      const mockTodos: TodoItem[] = [
+        { id: 1, parentId: 0, index: 0, completed: false, text: 'Title A', createdAt: new Date(), completedAt: null },
+        { id: 2, parentId: 0, index: 1, completed: false, text: 'Title B', createdAt: new Date(), completedAt: null },
+        { id: 3, parentId: 0, index: 2, completed: false, text: 'Title C', createdAt: new Date(), completedAt: null },
+      ];
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+      (database.updateTodosOrder as vi.Mock).mockResolvedValue(undefined);
+
+      const store = useNotesStore();
+      await store.loadTodos();
+
+      const items = [
+        { id: 3, parentId: 0, index: 2, completed: false, text: 'Title C', createdAt: new Date(), completedAt: null },
+        { id: 1, parentId: 0, index: 0, completed: false, text: 'Title A', createdAt: new Date(), completedAt: null },
+        { id: 2, parentId: 0, index: 1, completed: false, text: 'Title B', createdAt: new Date(), completedAt: null },
+      ];
+
+      await store.updateTitlesOrder(items);
+
+      expect(database.updateTodosOrder).toHaveBeenCalledWith([
+        expect.objectContaining({ id: 3, index: 0 }),
+        expect.objectContaining({ id: 1, index: 1 }),
+        expect.objectContaining({ id: 2, index: 2 }),
+      ]);
+    });
+  });
+
   describe('toggleCompletion', () => {
     it('should toggle completion status', async () => {
       const mockTodo: TodoItem = {
