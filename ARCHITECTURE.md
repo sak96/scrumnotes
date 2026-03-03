@@ -65,12 +65,13 @@ Scrum Notes is a Vue 3 single-page application (SPA) that manages scrum notes us
 ```
 App.vue
 ├── HomeView
-│   ├── TitleList
+│   ├── Search/Add Section
+│   │   └── Search Input, Add Button, Delete Button (🗑️)
+│   ├── Draggable (vue-draggable-next)
 │   │   └── TitleCard (v-for)
+│   │       ├── DraggableIcon (⠿)
 │   │       ├── <details>/<summary>
 │   │       └── Children Preview
-│   └── Search/Add Section
-│       └── Search Input, Add Button, Delete Button (🗑️)
 ├── EditView
 │   ├── Header
 │   │   ├── Home Button (🏠)
@@ -141,6 +142,7 @@ User Action → Component → Store (Pinia) → Database (IndexedDB) → Store (
 - `deleteTodosByIds(ids)`: Delete multiple items and their children
 - `toggleCompletion(id)`: Toggle completion status
 - `updateChildrenOrder(parentId, items)`: Reorder children items
+- `updateTitlesOrder(items)`: Reorder title items
 - `setFilter(searchText)`: Update filter options
 
 ## Database Layer (IndexedDB)
@@ -269,11 +271,12 @@ DeleteView uses native HTML elements without dedicated sub-components. The view 
 **Responsibilities**:
 - Search/filter titles
 - Add new titles
-- Display filtered title list
+- Display filtered title list with drag-and-drop reordering
 - Route to edit page
 
 **State**:
 - searchText: Local state for input
+- titlesList: Local state for draggable title list
 
 ### EditView (`/src/views/EditView.vue`)
 
