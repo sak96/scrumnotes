@@ -504,6 +504,60 @@ describe('DeleteView', () => {
       expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
     });
 
+    it('should NOT auto-select disabled title when all completed children are checked', async () => {
+      const mockTodos: TodoItem[] = [
+        {
+          id: 1,
+          parentId: 0,
+          index: 0,
+          completed: true,
+          text: 'Title',
+          createdAt: new Date(),
+          completedAt: new Date(),
+        },
+        {
+          id: 2,
+          parentId: 1,
+          index: 0,
+          completed: true,
+          text: 'Child 1 - Completed',
+          createdAt: new Date(),
+          completedAt: new Date(),
+        },
+        {
+          id: 3,
+          parentId: 1,
+          index: 1,
+          completed: false,
+          text: 'Child 2 - Incomplete',
+          createdAt: new Date(),
+          completedAt: null,
+        },
+      ];
+      (database.getAllTodos as vi.Mock).mockResolvedValue(mockTodos);
+      await store.loadTodos();
+
+      const wrapper = mount(DeleteView, {
+        global: {
+          plugins: [router],
+          stubs: { RouterLink: true },
+        },
+      });
+
+      await wrapper.vm.$nextTick();
+
+      const summaryElements = wrapper.findAll('.delete-item > details > summary');
+      const titleCheckbox = summaryElements[0].find('input[type="checkbox"]');
+      expect(titleCheckbox.attributes('disabled')).toBeDefined();
+      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
+
+      const childCheckboxes = wrapper.findAll('.child-item input[type="checkbox"]');
+      await childCheckboxes[0].trigger('click');
+      await wrapper.vm.$nextTick();
+
+      expect((titleCheckbox.element as HTMLInputElement).checked).toBe(false);
+    });
+
   });
 
   describe('delete button', () => {

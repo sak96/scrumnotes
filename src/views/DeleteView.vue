@@ -93,7 +93,7 @@ onMounted(() => {
   titles.value.forEach(title => {
     const completedChildren = getCompletedChildrenByParentId(title.id);
     completedChildren.forEach(child => checkedChildIds.value.add(child.id));
-    if (isAllChildrenCompleted(title.id) && completedChildren.length > 0) {
+    if (isAllChildrenCompleted(title.id) && completedChildren.length > 0 && !isTitleDisabled(title.id)) {
       checkedTitleIds.value.add(title.id);
     }
   });
@@ -152,7 +152,7 @@ function toggleChild(childId: number) {
   } else {
     checkedChildIds.value.add(childId);
     const parentId = (store.todos as TodoItem[]).find(t => t.id === childId)?.parentId;
-    if (parentId && !checkedTitleIds.value.has(parentId)) {
+    if (parentId && !checkedTitleIds.value.has(parentId) && !isTitleDisabled(parentId)) {
       const completedChildren = getCompletedChildrenByParentId(parentId);
       if (completedChildren.every(child => checkedChildIds.value.has(child.id))) {
         checkedTitleIds.value.add(parentId);
