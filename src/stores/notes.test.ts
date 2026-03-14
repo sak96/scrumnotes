@@ -1,11 +1,11 @@
 /// <reference types="vitest" />
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
-import * as database from '@/services/database';
-import { useNotesStore } from '@/stores/notes';
-import type { TodoItem } from '@/types';
+import * as database from '../services/database';
+import { useNotesStore } from './notes';
+import type { TodoItem } from '../types';
 
-vi.mock('@/services/database');
+vi.mock('../services/database');
 
 describe('useNotesStore', () => {
   beforeEach(() => {

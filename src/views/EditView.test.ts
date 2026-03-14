@@ -3,12 +3,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
-import * as database from '@/services/database';
+import * as database from '../services/database';
 import EditView from './EditView.vue';
-import { useNotesStore } from '@/stores/notes';
-import type { TodoItem } from '@/types';
+import { useNotesStore } from '../stores/notes';
+import type { TodoItem } from '../types';
 
-vi.mock('@/services/database');
+vi.mock('../services/database');
 
 describe('EditView', () => {
   let router: ReturnType<typeof createRouter>;

@@ -3,12 +3,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 import { createRouter, createWebHistory } from 'vue-router';
-import * as database from '@/services/database';
+import * as database from '../services/database';
 import HomeView from './HomeView.vue';
-import { useNotesStore } from '@/stores/notes';
-import type { TodoItem } from '@/types';
+import { useNotesStore } from '../stores/notes';
+import type { TodoItem } from '../types';
 
-vi.mock('@/services/database');
+vi.mock('../services/database');
 
 const DraggableStub = {
   template: '<div><slot></slot></div>',
