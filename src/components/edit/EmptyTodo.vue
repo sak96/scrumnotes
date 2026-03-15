@@ -4,13 +4,13 @@
     <span>◻️</span>
     <input
       :value="text"
-      @input="emit('update:text', ($event.target as HTMLInputElement).value)"
-      @keyup.enter="handleEnter"
-      @blur="handleBlur"
       placeholder="Add a new item..."
       class="empty-input"
       spellcheck="true"
-    />
+      @input="emit('update:text', ($event.target as HTMLInputElement).value)"
+      @keyup.enter="handleEnter"
+      @blur="handleBlur"
+    >
   </div>
 </template>
 

@@ -7,8 +7,8 @@
         <span class="title-text">{{ title.text }}</span>
         <button
           class="edit-button"
-          @click.prevent="emit('edit', title.id)"
           aria-label="Edit"
+          @click.prevent="emit('edit', title.id)"
         >
           ✏️
         </button>
@@ -22,7 +22,10 @@
           <span>{{ child.completed ? '✅' : '◻️' }}</span>
           <span>{{ child.text }}</span>
         </div>
-        <div v-if="children.length === 0" class="no-children">
+        <div
+          v-if="children.length === 0"
+          class="no-children"
+        >
           No items yet
         </div>
       </div>

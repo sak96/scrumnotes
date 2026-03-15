@@ -3,11 +3,11 @@
     <div class="search-add-section">
       <input
         :value="searchText"
-        @input="updateSearch"
         placeholder="🔍 Filter titles..."
         class="search-input"
         spellcheck="true"
-      />
+        @input="updateSearch"
+      >
       <button
         class="add-button"
         @click="handleAdd"
@@ -16,8 +16,8 @@
       </button>
       <button
         class="delete-button"
-        @click="router.push('/delete')"
         aria-label="Delete"
+        @click="router.push('/delete')"
       >
         🗑️
       </button>
@@ -35,7 +35,10 @@
         @edit="handleEdit"
       />
     </draggable>
-    <div v-if="filteredTitles.length === 0" class="no-titles">
+    <div
+      v-if="filteredTitles.length === 0"
+      class="no-titles"
+    >
       No titles found
     </div>
   </div>

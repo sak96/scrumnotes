@@ -1,18 +1,29 @@
 <template>
   <dialog
-    ref="dialogRef"
     :id="id"
+    ref="dialogRef"
     class="confirm-dialog"
     @click="handleBackdropClick"
   >
-    <div class="dialog-content" @click.stop>
-      <h2 v-if="title">{{ title }}</h2>
+    <div
+      class="dialog-content"
+      @click.stop
+    >
+      <h2 v-if="title">
+        {{ title }}
+      </h2>
       <p>{{ message }}</p>
       <div class="dialog-actions">
-        <button class="cancel-button" @click="handleCancel">
+        <button
+          class="cancel-button"
+          @click="handleCancel"
+        >
           {{ cancelText }}
         </button>
-        <button class="confirm-button" @click="handleConfirm">
+        <button
+          class="confirm-button"
+          @click="handleConfirm"
+        >
           {{ confirmText }}
         </button>
       </div>

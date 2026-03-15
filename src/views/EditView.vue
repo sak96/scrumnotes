@@ -1,23 +1,26 @@
 <template>
-  <div class="edit-view" v-if="title">
+  <div
+    v-if="title"
+    class="edit-view"
+  >
     <div class="header">
       <button
         class="home-button"
-        @click="router.push('/')"
         aria-label="Home"
+        @click="router.push('/')"
       >
         🏠
       </button>
       <input
         :value="title.text"
-        @input="updateTitle"
         class="title-input"
         spellcheck="true"
-      />
+        @input="updateTitle"
+      >
       <button
         class="delete-button"
-        @click="showDeleteConfirm = true"
         aria-label="Delete"
+        @click="showDeleteConfirm = true"
       >
         🗑️
       </button>
@@ -44,7 +47,10 @@
       @confirm="handleDelete"
     />
   </div>
-  <div v-else class="not-found">
+  <div
+    v-else
+    class="not-found"
+  >
     Title not found
   </div>
 </template>

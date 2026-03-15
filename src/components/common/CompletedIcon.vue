@@ -1,8 +1,8 @@
 <template>
   <button
     class="completed-icon"
-    @click="emit('toggle')"
     :aria-label="completed ? 'Mark as incomplete' : 'Mark as complete'"
+    @click="emit('toggle')"
   >
     {{ completed ? '✅' : '◻️' }}
   </button>

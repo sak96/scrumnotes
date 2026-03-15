@@ -1,28 +1,28 @@
 <template>
-  <div >
+  <div>
     <draggable
-      class="children-list"
       v-model="list"
+      class="children-list"
       handle=".draggable-icon"
       @end="handleReorder"
     >
-        <div
-          v-for="element in list"
-          :key="element.id"
-          class="child-item"
+      <div
+        v-for="element in list"
+        :key="element.id"
+        class="child-item"
+      >
+        <DraggableIcon />
+        <CompletedIcon
+          :completed="element.completed"
+          @toggle="toggleComplete(element.id)"
+        />
+        <input
+          v-model="element.text"
+          class="child-text"
+          spellcheck="true"
+          @blur="handleTextChange(element)"
         >
-          <DraggableIcon />
-          <CompletedIcon
-            :completed="element.completed"
-            @toggle="toggleComplete(element.id)"
-          />
-          <input
-            v-model="element.text"
-            @blur="handleTextChange(element)"
-            class="child-text"
-            spellcheck="true"
-          />
-        </div>
+      </div>
     </draggable>
   </div>
 </template>

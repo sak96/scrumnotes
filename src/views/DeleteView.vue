@@ -3,8 +3,8 @@
     <div class="header">
       <button
         class="home-button"
-        @click="router.push('/')"
         aria-label="Home"
+        @click="router.push('/')"
       >
         🏠
       </button>
@@ -22,10 +22,10 @@
             <input
               type="checkbox"
               :checked="isTitleChecked(title.id)"
-              @change="toggleTitle(title.id)"
               :disabled="isTitleDisabled(title.id)"
               class="delete-checkbox"
-            />
+              @change="toggleTitle(title.id)"
+            >
             <span>{{ title.text }}</span>
           </summary>
           <div class="children-section">
@@ -37,9 +37,9 @@
               <input
                 type="checkbox"
                 :checked="isChildChecked(child.id)"
-                @change="toggleChild(child.id)"
                 class="delete-checkbox"
-              />
+                @change="toggleChild(child.id)"
+              >
               <span>{{ child.completed ? '✅' : '◻️' }}</span>
               <span>{{ child.text }}</span>
             </div>
@@ -48,15 +48,18 @@
       </div>
     </div>
 
-    <div v-if="titles.length === 0" class="no-items">
+    <div
+      v-if="titles.length === 0"
+      class="no-items"
+    >
       No items to delete
     </div>
 
     <div class="sticky-footer">
       <button
         class="delete-button"
-        @click="showDeleteConfirm = true"
         :disabled="checkedIds.length === 0"
+        @click="showDeleteConfirm = true"
       >
         🗑️ Delete ({{ checkedIds.length }})
       </button>
