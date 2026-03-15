@@ -1,6 +1,7 @@
 import pluginVue from 'eslint-plugin-vue';
 import vueParser from 'vue-eslint-parser';
 import parserTs from '@typescript-eslint/parser';
+import type { Linter } from 'eslint';
 
 export default [
   {
@@ -58,4 +59,4 @@ export default [
       'no-undef': 'off'
     }
   }
-];
+] satisfies Linter.FlatConfig[];
