@@ -1,50 +1,36 @@
 import pluginVue from 'eslint-plugin-vue';
 import vueParser from 'vue-eslint-parser';
-import parserTs from '@typescript-eslint/parser';
-import type { Linter } from 'eslint';
+import tsParser from 'typescript-eslint';
+import globals from 'globals';
 
 export default [
+  ...pluginVue.configs['flat/recommended'],
   {
     files: ['src/**/*.vue'],
-    ignores: ['node_modules', 'dist', '.git'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
       parser: vueParser,
       parserOptions: {
-        parser: parserTs
+        parser: tsParser.parser
       },
       globals: {
-        console: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        fetch: 'readonly'
+        ...globals.browser
       }
     },
-    plugins: {
-      vue: pluginVue
-    },
     rules: {
-      ...pluginVue.configs.base.rules,
-      ...pluginVue.configs['vue3-essential'].rules,
       'vue/comment-directive': 'off',
-      'vue/no-side-effects-in-computed-properties': 'off',
-      'no-unused-vars': 'off',
-      'no-undef': 'off'
+      'vue/no-side-effects-in-computed-properties': 'off'
     }
   },
   {
     files: ['src/**/*.ts'],
-    ignores: ['node_modules', 'dist', '.git'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      parser: parserTs,
+      parser: tsParser.parser,
       globals: {
-        console: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        fetch: 'readonly',
+        ...globals.browser,
         vi: 'readonly',
         describe: 'readonly',
         it: 'readonly',
@@ -53,10 +39,6 @@ export default [
         MockInstance: 'readonly',
         Mock: 'readonly'
       }
-    },
-    rules: {
-      'no-unused-vars': 'off',
-      'no-undef': 'off'
     }
   }
-] satisfies Linter.FlatConfig[];
+];
