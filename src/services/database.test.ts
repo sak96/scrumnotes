@@ -135,6 +135,54 @@ describe('Database Service', () => {
 
       expect(mockDB.delete).toHaveBeenCalledWith('todos', 1);
     });
+
+    it('should reorder remaining siblings after deleting a child', async () => {
+      const mockTodos: TodoItem[] = [
+        { id: 1, parentId: 5, index: 0, completed: false, text: 'First', createdAt: new Date(), completedAt: null },
+        { id: 2, parentId: 5, index: 1, completed: false, text: 'Second', createdAt: new Date(), completedAt: null },
+        { id: 3, parentId: 5, index: 2, completed: false, text: 'Third', createdAt: new Date(), completedAt: null },
+        { id: 4, parentId: 0, index: 0, completed: false, text: 'Parent', createdAt: new Date(), completedAt: null },
+      ];
+      mockDB.getAll.mockResolvedValue(mockTodos);
+
+      let updatedItems: TodoItem[] = [];
+      const mockStore = {
+        put: vi.fn().mockResolvedValue(undefined),
+      };
+      mockDB.transaction.mockReturnValue({
+        store: mockStore,
+        done: vi.fn().mockResolvedValue(undefined),
+      });
+
+      const { deleteTodo } = await import('./database');
+      await deleteTodo(2);
+
+      expect(mockDB.delete).toHaveBeenCalledWith('todos', 2);
+
+      const putCalls = mockStore.put.mock.calls;
+      expect(putCalls.length).toBe(2);
+      
+      const updatedFirst = putCalls[0][0] as TodoItem;
+      const updatedThird = putCalls[1][0] as TodoItem;
+
+      expect(updatedFirst.id).toBe(1);
+      expect(updatedFirst.index).toBe(0);
+      expect(updatedThird.id).toBe(3);
+      expect(updatedThird.index).toBe(1);
+    });
+
+    it('should not reorder when deleting a parent item', async () => {
+      const mockTodos: TodoItem[] = [
+        { id: 1, parentId: 0, index: 0, completed: false, text: 'Parent', createdAt: new Date(), completedAt: null },
+      ];
+      mockDB.getAll.mockResolvedValue(mockTodos);
+
+      const { deleteTodo } = await import('./database');
+      await deleteTodo(1);
+
+      expect(mockDB.delete).toHaveBeenCalledWith('todos', 1);
+      expect(mockDB.transaction).not.toHaveBeenCalled();
+    });
   });
 
   describe('deleteTodosByParentId', () => {

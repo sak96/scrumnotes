@@ -49,7 +49,26 @@ export async function saveTodo(item: TodoItem): Promise<void> {
 
 export async function deleteTodo(id: number): Promise<void> {
   const db = await initDB();
+  
+  const allTodos = await db.getAll(STORE_NAME);
+  const deletedItem = allTodos.find(t => t.id === id);
+  
   await db.delete(STORE_NAME, id);
+  
+  if (deletedItem && deletedItem.parentId !== 0) {
+    const siblings = allTodos
+      .filter(t => t.parentId === deletedItem.parentId && t.id !== id)
+      .sort((a, b) => a.index - b.index);
+    
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    await Promise.all(
+      siblings.map(async (item, index) => {
+        const updated = { ...item, index };
+        await tx.store.put(updated);
+      })
+    );
+    await tx.done;
+  }
 }
 
 export async function deleteTodosByParentId(parentId: number): Promise<void> {
