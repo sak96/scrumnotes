@@ -7,7 +7,10 @@
 
 <style>
 .draggable-icon {
-  cursor: move;
+  cursor: grab;
   user-select: none;
+}
+.draggable-icon:active {
+  cursor: grabbing;
 }
 </style>
